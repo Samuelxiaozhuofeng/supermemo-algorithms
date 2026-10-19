@@ -1,6 +1,6 @@
 # SuperMemo 20 algorithms, reverse-engineered
 
-English | [简体中文](README.zh-CN.md)
+[简体中文](README.md) | English
 
 A clean-room re-description of three algorithms in **SuperMemo 20** for incremental reading:
 
@@ -28,7 +28,7 @@ This is an **unofficial** project with no connection to SuperMemo World. It cont
 | `priority/test_vectors.py` | Assertion tests |
 | `schedule/SPEC.md` | Topic scheduling + auto-postpone spec (Chinese) |
 | `schedule/schedule.py` | Reference implementation (imports `../priority/priority.py`) |
-| `schedule/test_vectors.py` | Assertion tests (245 vectors) |
+| `schedule/test_vectors.py` | Assertion tests (245 vectors, 93 of them use measured data from the original) |
 | `measurements/` | UI measurement scripts (`实测提示词_*.md`), raw readings (`results_*.jsonl`), and reports (`实测报告_*.md`) for rounds 1–3 |
 
 The specs are written in Chinese. The pseudocode, addresses and tables can be read without the prose.
@@ -46,11 +46,11 @@ Before this, headless runs under Wine could not open a collection (`schedule/SPE
 The code needs Python 3 and the standard library only (`math`, `struct`, `dataclasses`, `pathlib`, `unittest.mock`). It was tested on Python 3.14.
 
 ```bash
-python3 -I priority/test_vectors.py   # prints "all vectors passed"
-python3 -I schedule/test_vectors.py   # prints "ALL PASSED: 245 条"
+python3 -I priority/test_vectors.py   # prints "all vectors passed" with the measured count (5)
+python3 -I schedule/test_vectors.py   # prints "ALL PASSED: 245 条" with 93 measured / 152 formula-derived
 ```
 
-Exit code 0 means every vector passed. Any failure exits non-zero.
+Exit code 0 means every vector passed. Any failure exits non-zero. Both suites run on GitHub Actions on every push.
 
 ### Main entry points
 
@@ -97,6 +97,15 @@ Randomness is always injected (`rand01` / `rng`), and so is "today". Nothing rea
 
 - **原版实测 (measured on the original)**: these numbers came from SuperMemo itself. Do **not** change them to make an implementation pass.
 - **公式推演 (formula-derived)**: these were computed from the disassembled instructions. They can be updated if a ruling changes.
+
+## How far to trust this
+
+In short: **consistent and runnable at the engineering and math level; the evidence chain is not yet closed.** It is fine to use as a strong behavioral hypothesis plus a runnable model. To treat it as a confirmed spec of the original, three things are still missing: raw evidence others can check (debugger logs, screenshots), the exe itself (not distributed here, hashes only), and independent third-party reproduction.
+
+- **"245 passed" does not mean "245 checked against the original".** In the scheduling suite only 93 vectors use numbers produced by SuperMemo itself (debugger rounds 6, 8, 9 and UI rounds 2, 3). The other 152 are formula-derived expectations and only show that the code matches the spec. The priority suite has 5 measured assertions. Both suites print this split at the end.
+- **Dates.** UI round 1 ran on the real date, 2026-10-19. Every later date in the reports is simulated by setting the system clock forward so elements fall due.
+- **Screenshots and logs are not published.** They stay on the Windows machine used for testing.
+- Follow-up work is tracked in issues: [#1 evidence pack](https://github.com/Samuelxiaozhuofeng/supermemo-algorithms/issues/1), [#2 differential test harness](https://github.com/Samuelxiaozhuofeng/supermemo-algorithms/issues/2), [#3 measurement gaps](https://github.com/Samuelxiaozhuofeng/supermemo-algorithms/issues/3).
 
 ## What has been verified against the original
 

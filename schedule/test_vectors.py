@@ -21,6 +21,7 @@ from schedule import (  # noqa: E402
 
 推演, 实测 = "公式推演", "原版实测"
 N = 0
+BY_KIND = {推演: 0, 实测: 0}
 
 
 def v(kind, name, got, want, tol=None):
@@ -29,6 +30,7 @@ def v(kind, name, got, want, tol=None):
     ok = (got is not None and abs(got - want) <= tol) if tol is not None else got == want
     assert ok, "%s [%s]: got %r, want %r" % (name, kind, got, want)
     N += 1
+    BY_KIND[kind] += 1
 
 
 def seq(*xs):
@@ -393,4 +395,4 @@ v(推演, "#8 NaN 不关", auto_postpone(scene(0, 11), AutoState(field_109=1, la
 v(推演, "#8 109≤0 不关", auto_postpone(scene(0, 11), AutoState(field_109=0, last_used=0.0), 0, 110.5,
                                     SA, PR, POS, ZERO), "ran")
 
-print("ALL PASSED: %d 条" % N)
+print("ALL PASSED: %d 条（原版实测 %d 条，公式推演 %d 条）" % (N, BY_KIND[实测], BY_KIND[推演]))

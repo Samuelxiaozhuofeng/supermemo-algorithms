@@ -1,6 +1,6 @@
 # SuperMemo 20 算法逆向复刻
 
-[English](README.md) | 简体中文
+简体中文 | [English](README.en.md)
 
 本仓库用自己的话重新描述了 **SuperMemo 20** 里服务 incremental reading 的三个算法：
 
@@ -28,7 +28,7 @@
 | `priority/test_vectors.py` | 断言测试 |
 | `schedule/SPEC.md` | 排期与自动推迟规格 |
 | `schedule/schedule.py` | 参考实现（会引用 `../priority/priority.py`） |
-| `schedule/test_vectors.py` | 断言测试（245 条向量） |
+| `schedule/test_vectors.py` | 断言测试（245 条，其中 93 条用原版实测数据） |
 | `measurements/` | 第一到三轮界面实测：剧本 `实测提示词_*.md`、原始读数 `results_*.jsonl`、报告 `实测报告_*.md` |
 
 ## 怎么逆向出来的
@@ -44,11 +44,11 @@
 代码只需要 Python 3 和标准库（`math`、`struct`、`dataclasses`、`pathlib`、`unittest.mock`），在 Python 3.14 上测过。
 
 ```bash
-python3 -I priority/test_vectors.py   # 输出 all vectors passed
-python3 -I schedule/test_vectors.py   # 输出 ALL PASSED: 245 条
+python3 -I priority/test_vectors.py   # 输出 all vectors passed（其中原版实测 5 条，其余为公式推演）
+python3 -I schedule/test_vectors.py   # 输出 ALL PASSED: 245 条（原版实测 93 条，公式推演 152 条）
 ```
 
-退出码为 0 表示全部通过，有任何一条失败都会以非 0 退出。
+退出码为 0 表示全部通过，有任何一条失败都会以非 0 退出。每次推送都会在 GitHub Actions 上跑这两套测试。
 
 ### 主要入口
 
@@ -95,6 +95,15 @@ print(new_iv, adjust_af(1.8, 3, new_iv, hard=False))   # -> 4 1.8644897959183675
 
 - **原版实测**：数字是 SuperMemo 自己跑出来的。**不许**为了让实现通过去改它。
 - **公式推演**：数字是按反汇编出的指令算出来的，裁决变了可以跟着更新。
+
+## 可信度说明
+
+一句话：**工程与数学层面自洽、可运行；证据层面还没闭环。** 拿它当「很强的行为假设 + 可运行模型」没问题；要当「已证实的官方规格」用，还差三样：可核对的原始证据（调试器日志、截图）、exe 本身（本仓库不分发，只给哈希）、第三方独立复现。
+
+- **「245 条全过」不等于「245 条都对照过原版」。** 排期测试里只有 93 条用的是原版跑出来的数字（第六、八、九轮调试器和第二、三轮界面读数），其余 152 条是按公式推演的预期值，只能说明实现和规格一致。优先级测试里原版实测 5 条。测试结尾会打印这个比例。
+- **日期。** 第一轮界面实测在真实日期 2026-10-19 进行；报告里 10-20 以后的日期都是手动调系统时钟得到的模拟日期，用来让元素到期。
+- **截图和日志没有公开**，留在做实测的 Windows 机器上。
+- 补证据和补缺口的工作挂在 Issue 里：[#1 公开证据包](https://github.com/Samuelxiaozhuofeng/supermemo-algorithms/issues/1)、[#2 差分测试脚本](https://github.com/Samuelxiaozhuofeng/supermemo-algorithms/issues/2)、[#3 补实测缺口](https://github.com/Samuelxiaozhuofeng/supermemo-algorithms/issues/3)。
 
 ## 哪些已经和原版对上
 
